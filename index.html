@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logo Swap</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 40px;
+      gap: 24px;
+    }
+
+    .light { background: #f5f4f0; }
+    .dark { background: #1a1a1a; }
+
+    .label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    .light .label { color: #26251e; }
+    .dark .label { color: #edecec; }
+
+    .logo-swap {
+      position: relative;
+      height: 80px;
+    }
+
+    .logo-swap video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .logo-swap img {
+      height: 100%;
+      width: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Light theme -->
+  <div class="section light">
+    <span class="label">Hover to swap</span>
+    <div class="logo-swap"
+      onmouseenter="this.querySelector('video').play(); this.querySelector('video').style.opacity=1"
+      onmouseleave="this.querySelector('video').pause(); this.querySelector('video').currentTime=0; this.querySelector('video').style.opacity=0">
+      <video muted playsinline>
+        <source src="logo-files/logo-light-theme.mov" type='video/quicktime; codecs="hvc1"'>
+        <source src="logo-files/logo-light-theme.webm" type='video/webm; codecs="vp9"'>
+        <source src="logo-files/logo-light-theme.mp4" type="video/mp4">
+      </video>
+      <img src="logo-files/logo-light-theme.svg" alt="Logo">
+    </div>
+  </div>
+
+  <!-- Dark theme -->
+  <div class="section dark">
+    <span class="label">Hover to swap</span>
+    <div class="logo-swap"
+      onmouseenter="this.querySelector('video').play(); this.querySelector('video').style.opacity=1"
+      onmouseleave="this.querySelector('video').pause(); this.querySelector('video').currentTime=0; this.querySelector('video').style.opacity=0">
+      <video muted playsinline>
+        <source src="logo-files/logo-dark-theme.mov" type='video/quicktime; codecs="hvc1"'>
+        <source src="logo-files/logo-dark-theme.webm" type='video/webm; codecs="vp9"'>
+        <source src="logo-files/logo-dark-theme.mp4" type="video/mp4">
+      </video>
+      <img src="logo-files/logo-dark-theme.svg" alt="Logo">
+    </div>
+  </div>
+
+</body>
+</html>
