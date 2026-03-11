@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursor Logo 3D</title>
+  <style>
+    * { margin: 0; padding: 0; }
+    body { background: #111; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://esm.sh/three@0.160.0",
+    "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 0, 8);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.4;
+document.body.appendChild(renderer.domElement);
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 2;
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+dirLight.position.set(5, 8, 5);
+scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0x8888ff, 0.8);
+fillLight.position.set(-5, -3, -5);
+scene.add(fillLight);
+const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
+backLight.position.set(0, -5, -8);
+scene.add(backLight);
+
+const svgMarkup = `<svg fill="none" height="545" viewBox="0 0 498 545" width="498" xmlns="http://www.w3.org/2000/svg"><path d="m466.173 136.7-206.466-119.202c-6.63-3.828-14.81-3.828-21.44 0l-206.4561 119.202c-5.574 3.218-9.014 9.17-9.014 15.616v240.37c0 6.446 3.44 12.398 9.014 15.616l206.4661 119.202c6.63 3.828 14.81 3.828 21.44 0l206.466-119.202c5.574-3.218 9.014-9.17 9.014-15.616v-240.372c0-6.446-3.44-12.398-9.014-15.616h-.01zm-12.968 25.25-199.312 345.218c-1.348 2.326-4.904 1.376-4.904-1.318v-226.044c0-4.516-2.414-8.694-6.33-10.962l-195.7561-113.02c-2.326-1.348-1.376-4.904 1.318-4.904h398.6241c5.66 0 9.198 6.136 6.368 11.04h-.01v-.01z" fill="#26251e"/></svg>`;
+
+const loader = new SVGLoader();
+const data = loader.parse(svgMarkup);
+const pivot = new THREE.Group();
+
+const extrudeSettings = {
+  depth: 50,
+  bevelEnabled: true,
+  bevelThickness: 6,
+  bevelSize: 4,
+  bevelSegments: 3,
+};
+
+const material = new THREE.MeshPhysicalMaterial({
+  color: 0xccccbb,
+  metalness: 0.8,
+  roughness: 0.12,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  reflectivity: 1.0,
+  side: THREE.DoubleSide,
+});
+
+for (const path of data.paths) {
+  const shapes = SVGLoader.createShapes(path);
+  for (const shape of shapes) {
+    const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const mesh = new THREE.Mesh(geo, material);
+    pivot.add(mesh);
+  }
+}
+
+const box = new THREE.Box3().setFromObject(pivot);
+const center = box.getCenter(new THREE.Vector3());
+const size = box.getSize(new THREE.Vector3());
+const maxDim = Math.max(size.x, size.y, size.z);
+const scale = 3.5 / maxDim;
+
+pivot.scale.setScalar(scale);
+pivot.scale.y *= -1;
+
+const wrapper = new THREE.Group();
+wrapper.add(pivot);
+pivot.position.copy(center.multiplyScalar(-scale));
+pivot.position.y *= -1;
+
+scene.add(wrapper);
+
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  wrapper.rotation.y = t * 0.3;
+  wrapper.position.y = Math.sin(t * 0.8) * 0.1;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
